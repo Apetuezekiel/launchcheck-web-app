@@ -1,5 +1,5 @@
-import * as fs from 'node:fs';
 import { Resend } from 'resend';
+import * as fs from 'node:fs';
 
 export async function sendReport(
   pdfPath: string,
@@ -8,25 +8,30 @@ export async function sendReport(
   summary: string,
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL;
+  const fromEmail = process.env.FROM_EMAIL;
 
-  if (!apiKey || !from) {
-    console.warn('[mailer] RESEND_API_KEY and FROM_EMAIL must both be set to deliver email');
+  if (!apiKey) {
+    console.warn('[mailer] RESEND_API_KEY not set — skipping email.');
+    return;
+  }
+  if (!fromEmail) {
+    console.warn('[mailer] FROM_EMAIL not set — skipping email.');
     return;
   }
 
+  const resend = new Resend(apiKey);
   const hostname = new URL(url).hostname;
   const date = new Date().toISOString().split('T')[0];
   const subject = `launchcheck report — ${hostname} — ${date}`;
   const filename = `launchcheck-${hostname}.pdf`;
+  const pdfBuffer = fs.readFileSync(pdfPath);
 
-  const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
-    from,
+    from: fromEmail,
     to: toEmail,
     subject,
     text: summary,
-    attachments: [{ filename, content: fs.readFileSync(pdfPath) }],
+    attachments: [{ filename, content: pdfBuffer }],
   });
 
   if (error) {
