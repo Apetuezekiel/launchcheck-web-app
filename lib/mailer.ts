@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { Resend } from 'resend';
 
 export async function sendReport(
   pdfPath: string,
@@ -8,27 +8,28 @@ export async function sendReport(
   summary: string,
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn('[mailer] TODO: set RESEND_API_KEY to enable email delivery');
+  const from = process.env.FROM_EMAIL;
+
+  if (!apiKey || !from) {
+    console.warn('[mailer] RESEND_API_KEY and FROM_EMAIL must both be set to deliver email');
     return;
   }
 
-  const { Resend } = await import('resend');
-  const resend = new Resend(apiKey);
-
   const hostname = new URL(url).hostname;
-  const date = new Date().toISOString().slice(0, 10);
+  const date = new Date().toISOString().split('T')[0];
   const subject = `launchcheck report — ${hostname} — ${date}`;
-  const from = process.env.FROM_EMAIL ?? 'reports@resend.dev';
+  const filename = `launchcheck-${hostname}.pdf`;
 
-  const attachment = fs.readFileSync(pdfPath);
-  const filename = path.basename(pdfPath);
-
-  await resend.emails.send({
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
     from,
     to: toEmail,
     subject,
     text: summary,
-    attachments: [{ filename, content: attachment }],
+    attachments: [{ filename, content: fs.readFileSync(pdfPath) }],
   });
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }
