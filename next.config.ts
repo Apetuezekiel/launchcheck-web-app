@@ -4,7 +4,7 @@ const config: NextConfig = {
   // No edge runtime — API route spawns a child process and needs Node.
   // Chromium binary bundled by puppeteer is large; exclude it from the
   // Next.js bundle analysis (it's accessed at runtime via the filesystem).
-  serverExternalPackages: ['puppeteer', 'lighthouse', '@axe-core/puppeteer', 'launchcheck'],
+  serverExternalPackages: ['puppeteer', 'lighthouse', '@axe-core/puppeteer', 'launchcheck', 'better-sqlite3', 'node-cron'],
 };
 
 export default config;

@@ -25,3 +25,7 @@ yarn-error.log*
 Thumbs.db
 
 tsconfig.tsbuildinfo
+
+# Monitor
+reports/
+monitor.db
