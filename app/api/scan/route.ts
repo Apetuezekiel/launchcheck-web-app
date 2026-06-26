@@ -91,7 +91,9 @@ export async function POST(req: Request): Promise<Response> {
     const pdf = await htmlToPdf(html);
     const host = new URL(url).hostname.replace(/^www\./, '');
     const filename = `launchcheck-${host}.pdf`;
-    return new Response(pdf, {
+    // Blob is explicitly in BodyInit — avoids the Uint8Array<ArrayBufferLike>
+    // variance issue introduced in TypeScript 5.7+.
+    return new Response(new Blob([pdf], { type: 'application/pdf' }), {
       headers: {
         'content-type': 'application/pdf',
         'content-disposition': `attachment; filename="${filename}"`,
