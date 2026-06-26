@@ -37,7 +37,7 @@ function isPublicHttpUrl(raw: string): boolean {
  * The launchcheck HTML report is script-free and has no external resources,
  * so 'load' is sufficient — no need for networkidle0.
  */
-async function htmlToPdf(html: string): Promise<Buffer> {
+async function htmlToPdf(html: string): Promise<Uint8Array> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -45,12 +45,11 @@ async function htmlToPdf(html: string): Promise<Buffer> {
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
-    const pdf = await page.pdf({
+    return await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '16px', right: '16px', bottom: '16px', left: '16px' },
     });
-    return Buffer.from(pdf);
   } finally {
     await browser.close();
   }
