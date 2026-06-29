@@ -32,3 +32,6 @@ monitor.db
 
 monitor.db-shm
 monitor.db-wal
+
+monitor.db-shm
+monitor.db-wal
