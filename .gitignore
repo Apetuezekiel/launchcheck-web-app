@@ -29,3 +29,6 @@ tsconfig.tsbuildinfo
 # Monitor
 reports/
 monitor.db
+
+monitor.db-shm
+monitor.db-wal
